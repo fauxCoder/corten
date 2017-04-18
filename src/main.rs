@@ -29,12 +29,20 @@ struct_events! {
 
 fn tubby(x: u32, y: u32) -> Option<Vec<usize>>
 {
-    None
+    if x >= 64 {
+        None
+    }
+    else if y >= 64 {
+        None
+    }
+    else {
+        Some(vec![0])
+    }
 }
 
 fn blendy(background: Color, top: Color) -> Color
 {
-    Color::RGBA(0, 255, 0, 255)
+    top
 }
 
 fn main() {
@@ -52,13 +60,16 @@ fn main() {
         .build().unwrap();
 
     let img_func = temp::ImageFunction::new(
-        vec![Color::RGBA(0, 0, 0, 0)],
+        vec![Color::RGBA(128, 128, 128, 0)],
         tubby,
         blendy,
     );
 
-    let mut texture = renderer.create_texture_streaming(PixelFormatEnum::RGBA8888, 256, 256).unwrap();
-    // texture.update(None, , 4).unwrap();
+    let mut v = std::vec::Vec::new();
+    let result = img_func.execute(& mut v);
+
+    let mut texture = renderer.create_texture_static(PixelFormatEnum::RGBA8888, result.size.x as u32, result.size.y as u32).unwrap();
+    texture.update(None, result.data.as_slice(), 32).unwrap();
 
     let mut events = Events::new(sdl_context.event_pump().unwrap());
 
@@ -87,7 +98,7 @@ fn main() {
 
         renderer.set_draw_color(Color::RGB(54, 54, 54));
         renderer.clear();
-        renderer.copy(&texture, None, Some(Rect::new(100, 100, 256, 256))).unwrap();
+        renderer.copy(&texture, None, Some(Rect::new(100, 100, result.size.x as u32, result.size.y as u32))).unwrap();
         renderer.present();
     };
 

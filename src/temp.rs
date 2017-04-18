@@ -12,8 +12,8 @@ pub struct ImageFunction {
 }
 
 pub struct ImageResult<'a> {
-    size: Point,
-    data: &'a Vec<u8>,
+    pub size: Point,
+    pub data: &'a Vec<u8>,
 }
 
 impl ImageFunction {
@@ -54,10 +54,11 @@ impl ImageFunction {
 
                     let mut blended = Color::RGBA(255, 255, 255, 0);
 
-                    for i in (0..(rv.len()-1)).rev() {
-                        let c = self.palette[rv[i]];
+                    for i in rv {
+                        let c = self.palette[i];
 
-                        blended = (self.blending)(blended, c);
+                        // blended = (self.blending)(blended, c);
+                        blended = c;
                     }
 
                     let (r, g, b, a) = blended.rgba();
