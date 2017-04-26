@@ -2,7 +2,9 @@ extern crate sdl2;
 
 use sdl2::pixels::Color;
 use sdl2::pixels::PixelFormatEnum;
+use sdl2::rect::Point;
 use sdl2::rect::{Rect};
+use sdl2::render::BlendMode;
 use std::process;
 use std::vec::Vec;
 
@@ -12,7 +14,8 @@ pub mod emscripten;
 #[macro_use]
 mod events;
 
-mod temp;
+mod image_function;
+mod pixel_art;
 
 struct_events! {
     keyboard: {
@@ -27,22 +30,21 @@ struct_events! {
     }
 }
 
-fn tubby(x: u32, y: u32) -> Option<Vec<usize>>
+fn tubby(x: u32, y: u32) -> Option<usize>
 {
     if x >= 64 {
         None
-    }
-    else if y >= 64 {
+    } else if y >= 64 {
         None
     }
     else {
-        Some(vec![0])
+        Some(0)
+        // if pixel_art::iso::block_top(Point::new(15, 20), 50, 30, 2, Point::new(x as i32, y as i32)) {
+        //     Some(1)
+        // } else {
+        //     Some(0)
+        // }
     }
-}
-
-fn blendy(background: Color, top: Color) -> Color
-{
-    top
 }
 
 fn main() {
@@ -59,17 +61,21 @@ fn main() {
         .present_vsync()
         .build().unwrap();
 
-    let img_func = temp::ImageFunction::new(
-        vec![Color::RGBA(128, 128, 128, 0)],
+    renderer.set_blend_mode(BlendMode::None);
+
+    let img_func = image_function::ImageFunction::new(
+        vec![
+            Color::RGBA(54, 54, 54, 255),
+            Color::RGBA(0, 255, 0, 255)
+        ],
         tubby,
-        blendy,
     );
 
     let mut v = std::vec::Vec::new();
     let result = img_func.execute(& mut v);
 
     let mut texture = renderer.create_texture_static(PixelFormatEnum::RGBA8888, result.size.x as u32, result.size.y as u32).unwrap();
-    texture.update(None, result.data.as_slice(), 32).unwrap();
+    texture.update(None, result.data.as_slice(), 4).unwrap();
 
     let mut events = Events::new(sdl_context.event_pump().unwrap());
 
