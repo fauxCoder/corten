@@ -29,39 +29,34 @@ impl ImageFunction {
         let mut size_y = 0;
 
         let mut y = 0;
-        let mut validY = true;
-        while validY {
+        let mut valid_y = true;
+        while valid_y {
             let mut x = 0;
-            let mut validX = true;
-            while validX {
-                let result = (self.function)(x, y);
+            let mut valid_x = true;
+            while valid_x {
+                match (self.function)(x, y) {
+                    Some(index) => {
+                        size_x = if x >= size_x { x + 1 } else { size_x };
+                        size_y = if y >= size_y { y + 1 } else { size_y };
 
-                if result == None {
-                    validX = false;
+                        let c = self.palette[index];
 
-                    if x == 0 {
-                        validY = false;
-                    }
+                        let (r, g, b, a) = c.rgba();
+                        v.push(a);
+                        v.push(b);
+                        v.push(g);
+                        v.push(r);
+                    },
+                    None => {
+                        valid_x = false;
+
+                        if x == 0 {
+                            valid_y = false;
+                        }
+                    },
                 }
-                else
-                {
-                    let rv = result.unwrap();
-
-                    size_x = if x >= size_x { x + 1 } else { size_x };
-                    size_y = if y >= size_y { y + 1 } else { size_y };
-
-                    let c = self.palette[rv];
-
-                    let (r, g, b, a) = c.rgba();
-                    v.push(a);
-                    v.push(b);
-                    v.push(g);
-                    v.push(r);
-                }
-
                 x += 1;
             }
-
             y += 1;
         }
 
