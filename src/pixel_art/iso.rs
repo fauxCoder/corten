@@ -2,7 +2,7 @@ extern crate sdl2;
 
 use sdl2::rect::Point;
 
-struct Cuboid {
+pub struct Cuboid {
     /*
                                    .UN.
                              .            .
@@ -32,7 +32,7 @@ struct Cuboid {
     height: i32,
     ratio: i32,
 
-    texture_size: Point,
+    pub texture_size: Point,
 
     lower_south: Point,
     lower_east: Point,
@@ -44,15 +44,15 @@ struct Cuboid {
     upper_north: Point,
 }
 
-struct CuboidSpec {
-    length: i32,
-    width: i32,
-    height: i32,
-    ratio: i32,
+pub struct CuboidSpec {
+    pub length: i32,
+    pub width: i32,
+    pub height: i32,
+    pub ratio: i32,
 }
 
 impl Cuboid {
-    fn new(s: CuboidSpec) -> Cuboid {
+    pub fn new(s: CuboidSpec) -> Cuboid {
         let texture_size = Point::new(
             s.width + s.length - 1,
             (s.height - 1) + (s.length / s.ratio) + (s.width / s.ratio) - 1,
@@ -264,7 +264,7 @@ fn face_bottom(c: &Cuboid, p: &Point) -> bool
     block_top(&c.lower_south, c.length, c.width, c.ratio, p)
 }
 
-fn faces_visible(c: &Cuboid, p: &Point) -> bool
+pub fn faces_visible(c: &Cuboid, p: &Point) -> bool
 {
     face_front(c, p)
     ||

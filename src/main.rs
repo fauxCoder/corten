@@ -17,6 +17,8 @@ mod events;
 mod image_function;
 mod pixel_art;
 
+use pixel_art::iso;
+
 struct_events! {
     keyboard: {
         key_left: Left,
@@ -32,18 +34,19 @@ struct_events! {
 
 fn tubby(x: u32, y: u32) -> Option<usize>
 {
-    if x >= 64 {
+    let c = iso::Cuboid::new(iso::CuboidSpec { length: 100, width: 100, height: 250, ratio: 2 });
+
+    if x >= c.texture_size.x as u32 {
         None
-    } else if y >= 64 {
+    } else if y >= c.texture_size.y as u32 {
         None
     }
     else {
-        Some(0)
-        // if pixel_art::iso::block_top(Point::new(15, 20), 50, 30, 2, Point::new(x as i32, y as i32)) {
-        //     Some(1)
-        // } else {
-        //     Some(0)
-        // }
+        if iso::faces_visible(&c, &Point::new(x as i32, y as i32)) {
+            Some(1)
+        } else {
+            Some(0)
+        }
     }
 }
 
@@ -75,7 +78,7 @@ fn main() {
     let result = img_func.execute(& mut v);
 
     let mut texture = renderer.create_texture_static(PixelFormatEnum::RGBA8888, result.size.x as u32, result.size.y as u32).unwrap();
-    texture.update(None, result.data.as_slice(), 4).unwrap();
+    texture.update(None, result.data.as_slice(), (4 * result.size.x) as usize).unwrap();
 
     let mut events = Events::new(sdl_context.event_pump().unwrap());
 
@@ -104,7 +107,7 @@ fn main() {
 
         renderer.set_draw_color(Color::RGB(54, 54, 54));
         renderer.clear();
-        renderer.copy(&texture, None, Some(Rect::new(100, 100, result.size.x as u32, result.size.y as u32))).unwrap();
+        renderer.copy(&texture, None, Some(Rect::new(128, 128, result.size.x as u32, result.size.y as u32))).unwrap();
         renderer.present();
     };
 
