@@ -6,7 +6,6 @@ use sdl2::rect::Point;
 use sdl2::rect::{Rect};
 use sdl2::render::BlendMode;
 use std::process;
-use std::vec::Vec;
 
 #[cfg(target_os = "emscripten")]
 pub mod emscripten;
@@ -16,6 +15,7 @@ mod events;
 
 mod image_function;
 mod pixel_art;
+mod env;
 
 use pixel_art::iso;
 
@@ -50,6 +50,24 @@ fn tubby(x: u32, y: u32) -> Option<usize>
     }
 }
 
+fn shorty(x: u32, y: u32) -> Option<usize>
+{
+    let c = iso::Cuboid::new(iso::CuboidSpec { length: 10, width: 10, height: 50, ratio: 2 });
+
+    if x >= c.texture_size.x as u32 {
+        None
+    } else if y >= c.texture_size.y as u32 {
+        None
+    }
+    else {
+        if iso::faces_visible(&c, &Point::new(x as i32, y as i32)) {
+            Some(1)
+        } else {
+            Some(0)
+        }
+    }
+}
+
 fn main() {
     let sdl_context = sdl2::init().unwrap();
     let video = sdl_context.video().unwrap();
@@ -64,21 +82,31 @@ fn main() {
         .present_vsync()
         .build().unwrap();
 
-    renderer.set_blend_mode(BlendMode::None);
-
     let img_func = image_function::ImageFunction::new(
         vec![
-            Color::RGBA(54, 54, 54, 255),
-            Color::RGBA(0, 255, 0, 255)
+            Color::RGBA(  0,   0,   0,   0),
+            Color::RGBA(200, 200, 200, 255),
         ],
         tubby,
     );
 
+    let p_img_func = image_function::ImageFunction::new(
+        vec![
+            Color::RGBA(  0,   0,   0,   0),
+            Color::RGBA( 17,  17,  17, 255),
+        ],
+        shorty,
+    );
+
     let mut v = std::vec::Vec::new();
     let result = img_func.execute(& mut v);
-
     let mut texture = renderer.create_texture_static(PixelFormatEnum::RGBA8888, result.size.x as u32, result.size.y as u32).unwrap();
     texture.update(None, result.data.as_slice(), (4 * result.size.x) as usize).unwrap();
+
+    let mut pv = std::vec::Vec::new();
+    let presult = p_img_func.execute(& mut pv);
+    let mut person = renderer.create_texture_static(PixelFormatEnum::RGBA8888, presult.size.x as u32, presult.size.y as u32).unwrap();
+    person.update(None, presult.data.as_slice(), (4 * presult.size.x) as usize).unwrap();
 
     let mut events = Events::new(sdl_context.event_pump().unwrap());
 
@@ -105,9 +133,11 @@ fn main() {
             // rect.y += 4;
         }
 
-        renderer.set_draw_color(Color::RGB(54, 54, 54));
+        renderer.set_draw_color(Color::RGBA(128, 128, 128, 255));
         renderer.clear();
+        renderer.set_blend_mode(BlendMode::Blend);
         renderer.copy(&texture, None, Some(Rect::new(128, 128, result.size.x as u32, result.size.y as u32))).unwrap();
+        renderer.copy(&person, None, Some(Rect::new(164, 128, presult.size.x as u32, presult.size.y as u32))).unwrap();
         renderer.present();
     };
 
