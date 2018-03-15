@@ -6,7 +6,6 @@ use sdl2::rect::Point;
 use sdl2::rect::{Rect};
 use sdl2::render::BlendMode;
 use std::process;
-use std::vec::Vec;
 
 #[cfg(target_os = "emscripten")]
 pub mod emscripten;
@@ -44,6 +43,8 @@ fn tubby(x: u32, y: u32) -> Option<usize>
     else {
         if iso::faces_visible(&c, &Point::new(x as i32, y as i32)) {
             Some(1)
+        } else if iso::edges_visible(&c, &Point::new(x as i32, y as i32)) {
+            Some(2)
         } else {
             Some(0)
         }
@@ -68,8 +69,9 @@ fn main() {
 
     let img_func = image_function::ImageFunction::new(
         vec![
-            Color::RGBA(54, 54, 54, 255),
-            Color::RGBA(0, 255, 0, 255)
+            Color::RGBA(255,    255,    255,      0),
+            Color::RGBA( 64,    192,     64,    255),
+            Color::RGBA(255,      0,      0,    255),
         ],
         tubby,
     );

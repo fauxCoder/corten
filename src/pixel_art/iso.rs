@@ -172,7 +172,7 @@ fn block_top(origin: &Point, length: i32, width: i32, ratio: i32, p: &Point) -> 
     (((p.y - opposite_y) * ratio) > (p.x - opposite_x).abs())
 }
 
-fn corners_visible(c: &Cuboid, p: &Point) -> bool
+pub fn corners_visible(c: &Cuboid, p: &Point) -> bool
 {
     (p == &c.lower_south)
     ||
@@ -189,17 +189,17 @@ fn corners_visible(c: &Cuboid, p: &Point) -> bool
     (p == &c.upper_north)
 }
 
-fn corners_hidden(c: &Cuboid, p: &Point) -> bool
+pub fn corners_hidden(c: &Cuboid, p: &Point) -> bool
 {
     (p == &c.lower_north)
 }
 
-fn corners(c: &Cuboid, p: &Point) -> bool
+pub fn corners(c: &Cuboid, p: &Point) -> bool
 {
     (corners_visible(c, p) || corners_hidden(c, p))
 }
 
-fn edges_visible(c: &Cuboid, p: &Point) -> bool
+pub fn edges_visible(c: &Cuboid, p: &Point) -> bool
 {
     line_right(&c.lower_south, c.length, c.ratio, p)
     ||
@@ -220,7 +220,7 @@ fn edges_visible(c: &Cuboid, p: &Point) -> bool
     line_up(&c.lower_west, c.height, p)
 }
 
-fn edges_hidden(c: &Cuboid, p: &Point) -> bool
+pub fn edges_hidden(c: &Cuboid, p: &Point) -> bool
 {
     line_right(&c.lower_west, c.length, c.ratio, p)
     ||
@@ -229,7 +229,7 @@ fn edges_hidden(c: &Cuboid, p: &Point) -> bool
     line_up(&c.lower_north, c.height, p)
 }
 
-fn edges(c: &Cuboid, p: &Point) -> bool
+pub fn edges(c: &Cuboid, p: &Point) -> bool
 {
     (edges_visible(c, p) || edges_hidden(c, p))
 }
@@ -273,7 +273,7 @@ pub fn faces_visible(c: &Cuboid, p: &Point) -> bool
     face_top(c, p)
 }
 
-fn faces_hidden(c: &Cuboid, p: &Point) -> bool
+pub fn faces_hidden(c: &Cuboid, p: &Point) -> bool
 {
     face_back(c, p)
     ||
@@ -282,7 +282,7 @@ fn faces_hidden(c: &Cuboid, p: &Point) -> bool
     face_bottom(c, p)
 }
 
-fn faces(c: &Cuboid, p: &Point) -> bool
+pub fn faces(c: &Cuboid, p: &Point) -> bool
 {
     (faces_visible(c, p) || faces_hidden(c, p))
 }
