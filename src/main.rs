@@ -5,6 +5,10 @@ use sdl2::pixels::PixelFormatEnum;
 use sdl2::rect::Point;
 use sdl2::rect::{Rect};
 use sdl2::render::BlendMode;
+use sdl2::render::Canvas;
+use sdl2::render::TextureCreator;
+use sdl2::video::Window;
+use sdl2::video::WindowContext;
 use std::process;
 
 #[cfg(target_os = "emscripten")]
@@ -15,7 +19,7 @@ mod events;
 
 mod image_function;
 mod pixel_art;
-mod env;
+// mod env;
 
 use pixel_art::iso;
 
@@ -79,10 +83,12 @@ fn main() {
         .position_centered().opengl()
         .build().unwrap();
 
-    let mut renderer = window.renderer()
+    let mut canvas: Canvas<Window> = window.into_canvas()
         .accelerated()
         .present_vsync()
         .build().unwrap();
+
+    let mut tc: TextureCreator<WindowContext> = canvas.texture_creator();
 
     let img_func = image_function::ImageFunction::new(
         vec![
@@ -103,12 +109,12 @@ fn main() {
 
     let mut v = std::vec::Vec::new();
     let result = img_func.execute(& mut v);
-    let mut texture = renderer.create_texture_static(PixelFormatEnum::RGBA8888, result.size.x as u32, result.size.y as u32).unwrap();
+    let mut texture = tc.create_texture_static(PixelFormatEnum::RGBA8888, result.size.x as u32, result.size.y as u32).unwrap();
     texture.update(None, result.data.as_slice(), (4 * result.size.x) as usize).unwrap();
 
     let mut pv = std::vec::Vec::new();
     let presult = p_img_func.execute(& mut pv);
-    let mut person = renderer.create_texture_static(PixelFormatEnum::RGBA8888, presult.size.x as u32, presult.size.y as u32).unwrap();
+    let mut person = tc.create_texture_static(PixelFormatEnum::RGBA8888, presult.size.x as u32, presult.size.y as u32).unwrap();
     person.update(None, presult.data.as_slice(), (4 * presult.size.x) as usize).unwrap();
 
     let mut events = Events::new(sdl_context.event_pump().unwrap());
@@ -136,12 +142,12 @@ fn main() {
             // rect.y += 4;
         }
 
-        renderer.set_draw_color(Color::RGBA(128, 128, 128, 255));
-        renderer.clear();
-        renderer.set_blend_mode(BlendMode::Blend);
-        renderer.copy(&texture, None, Some(Rect::new(128, 128, result.size.x as u32, result.size.y as u32))).unwrap();
-        renderer.copy(&person, None, Some(Rect::new(164, 128, presult.size.x as u32, presult.size.y as u32))).unwrap();
-        renderer.present();
+        canvas.set_draw_color(Color::RGBA(128, 128, 128, 255));
+        canvas.clear();
+        canvas.set_blend_mode(BlendMode::Blend);
+        canvas.copy(&texture, None, Some(Rect::new(128, 128, result.size.x as u32, result.size.y as u32))).unwrap();
+        canvas.copy(&person, None, Some(Rect::new(164, 128, presult.size.x as u32, presult.size.y as u32))).unwrap();
+        canvas.present();
     };
 
     #[cfg(target_os = "emscripten")]
