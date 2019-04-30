@@ -11,9 +11,6 @@ use sdl2::video::Window;
 use sdl2::video::WindowContext;
 use std::process;
 
-#[cfg(target_os = "emscripten")]
-pub mod emscripten;
-
 #[macro_use]
 mod events;
 
@@ -88,7 +85,7 @@ fn main() {
         .present_vsync()
         .build().unwrap();
 
-    let mut tc: TextureCreator<WindowContext> = canvas.texture_creator();
+    let tc: TextureCreator<WindowContext> = canvas.texture_creator();
 
     let img_func = image_function::ImageFunction::new(
         vec![
@@ -150,12 +147,5 @@ fn main() {
         canvas.present();
     };
 
-    #[cfg(target_os = "emscripten")]
-    use emscripten::{emscripten};
-
-    #[cfg(target_os = "emscripten")]
-    emscripten::set_main_loop_callback(main_loop);
-
-    #[cfg(not(target_os = "emscripten"))]
     loop { main_loop(); }
 }
